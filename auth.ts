@@ -8,15 +8,6 @@ declare module "next-auth" {
   }
 }
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string
-    refreshToken?: string
-    expiresAt?: number
-    error?: string
-  }
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({
@@ -44,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       // Token still valid (with 60s buffer)
-      if (Date.now() < (token.expiresAt ?? 0) * 1000 - 60_000) {
+      if (Date.now() < ((token.expiresAt as number) ?? 0) * 1000 - 60_000) {
         return token
       }
 
@@ -57,7 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             client_id: process.env.GOOGLE_CLIENT_ID!,
             client_secret: process.env.GOOGLE_CLIENT_SECRET!,
             grant_type: "refresh_token",
-            refresh_token: token.refreshToken ?? "",
+            refresh_token: (token.refreshToken as string) ?? "",
           }),
         })
 
@@ -77,8 +68,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }) {
-      session.accessToken = token.accessToken
-      session.error = token.error
+      session.accessToken = token.accessToken as string
+      session.error = token.error as string
       return session
     },
   },
