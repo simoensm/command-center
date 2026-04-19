@@ -1,26 +1,104 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: #202124;
+}
+
+/* FullCalendar — Google Calendar style */
+.fc .fc-button {
+  background-color: transparent !important;
+  border: 1px solid #dadce0 !important;
+  color: #3c4043 !important;
+  border-radius: 4px !important;
+  font-family: inherit !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  padding: 6px 12px !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+}
+
+.fc .fc-button:hover {
+  background-color: #f1f3f4 !important;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  background-color: #e8f0fe !important;
+  border-color: #1a73e8 !important;
+  color: #1a73e8 !important;
+}
+
+.fc .fc-today-button {
+  color: #1a73e8 !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: transparent !important;
+}
+
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  background-color: #1a73e8;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  margin: 2px;
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.25rem !important;
+  font-weight: 400 !important;
+  color: #202124 !important;
+}
+
+.fc .fc-col-header-cell {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  color: #70757a !important;
+  border: none !important;
+  padding: 8px 0 !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #70757a !important;
+  text-decoration: none !important;
+}
+
+.fc .fc-daygrid-day-number {
+  font-size: 0.75rem !important;
+  color: #3c4043 !important;
+  padding: 4px 8px !important;
+  text-decoration: none !important;
+}
+
+.fc .fc-event {
+  border-radius: 4px !important;
+  border: none !important;
+  font-size: 0.75rem !important;
+  padding: 1px 4px !important;
+  cursor: pointer !important;
+}
+
+.fc th,
+.fc td {
+  border-color: #dadce0 !important;
+}
+
+.fc .fc-scrollgrid {
+  border-color: #dadce0 !important;
+}
+
+.fc .fc-timegrid-slot {
+  height: 40px !important;
+}
+
+.fc .fc-timegrid-slot-label {
+  font-size: 0.7rem !important;
+  color: #70757a !important;
 }

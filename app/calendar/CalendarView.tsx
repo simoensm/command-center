@@ -1,30 +1,33 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import FullCalendar from "@fullcalendar/react"
 import dayGridPlugin from "@fullcalendar/daygrid"
 import timeGridPlugin from "@fullcalendar/timegrid"
 import interactionPlugin from "@fullcalendar/interaction"
 import type { calendar_v3 } from "googleapis"
 import type { EventInput } from "@fullcalendar/core"
-import SignOutButton from "./SignOutButton"
 
 type GoogleCalendar = calendar_v3.Schema$CalendarListEntry
 
-const CALENDAR_COLORS = [
+const FALLBACK_COLORS = [
   "#4285F4", "#EA4335", "#34A853", "#FBBC05",
   "#FF6D00", "#46BDC6", "#7986CB", "#33B679",
-  "#E67C73", "#F6BF26", "#039BE5", "#616161",
 ]
+
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="currentColor">
+    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+  </svg>
+)
 
 export default function CalendarView({ calendars }: { calendars: GoogleCalendar[] }) {
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
     Object.fromEntries(calendars.map((c) => [c.id!, true]))
   )
   const [events, setEvents] = useState<EventInput[]>([])
-  const calendarRef = useRef<FullCalendar>(null)
 
-  const colorFor = (index: number) => CALENDAR_COLORS[index % CALENDAR_COLORS.length]
+  const colorFor = (index: number) => FALLBACK_COLORS[index % FALLBACK_COLORS.length]
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -33,7 +36,6 @@ export default function CalendarView({ calendars }: { calendars: GoogleCalendar[
       const timeMax = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString()
 
       const active = calendars.filter((c) => enabled[c.id!])
-
       const results = await Promise.all(
         active.map(async (cal, index) => {
           const res = await fetch(
@@ -51,55 +53,49 @@ export default function CalendarView({ calendars }: { calendars: GoogleCalendar[
           }))
         })
       )
-
       setEvents(results.flat())
     }
 
     fetchEvents()
   }, [enabled, calendars])
 
-  const toggleCalendar = (id: string) => {
-    setEnabled((prev) => ({ ...prev, [id]: !prev[id] }))
-  }
-
   return (
-    <div className="flex h-screen bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex" style={{ height: "calc(100vh - 64px)" }}>
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 overflow-y-auto border-r border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-            My Calendars
-          </h2>
-          <SignOutButton />
-        </div>
-        <ul className="space-y-1">
-          {calendars.map((cal, index) => (
-            <li key={cal.id}>
-              <button
-                onClick={() => toggleCalendar(cal.id!)}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-700"
-              >
-                <span
-                  className="h-3 w-3 shrink-0 rounded-full"
-                  style={{
-                    backgroundColor: enabled[cal.id!]
-                      ? (cal.backgroundColor ?? colorFor(index))
-                      : "#d1d5db",
-                  }}
-                />
-                <span className={`truncate ${enabled[cal.id!] ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400"}`}>
-                  {cal.summary}
-                </span>
-              </button>
-            </li>
-          ))}
+      <aside className="w-56 shrink-0 overflow-y-auto bg-white pt-4">
+        <p className="mb-1 px-4 text-xs font-medium uppercase tracking-wider text-[#5f6368]">
+          My calendars
+        </p>
+        <ul>
+          {calendars.map((cal, index) => {
+            const color = cal.backgroundColor ?? colorFor(index)
+            const active = enabled[cal.id!]
+            return (
+              <li key={cal.id}>
+                <button
+                  onClick={() => setEnabled((prev) => ({ ...prev, [cal.id!]: !prev[cal.id!] }))}
+                  className="flex w-full items-center gap-3 rounded-r-full px-4 py-1.5 text-left text-sm text-[#202124] transition-colors hover:bg-[#f1f3f4]"
+                >
+                  <span
+                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm text-white"
+                    style={{
+                      backgroundColor: active ? color : "transparent",
+                      border: `2px solid ${color}`,
+                    }}
+                  >
+                    {active && <CheckIcon />}
+                  </span>
+                  <span className="truncate">{cal.summary}</span>
+                </button>
+              </li>
+            )
+          })}
         </ul>
       </aside>
 
       {/* Calendar */}
-      <main className="flex-1 overflow-auto p-4">
+      <main className="flex-1 overflow-auto border-l border-[#dadce0] p-4">
         <FullCalendar
-          ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           headerToolbar={{
